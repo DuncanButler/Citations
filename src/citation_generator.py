@@ -71,75 +71,61 @@ class CitationGenerator:
         """Generate HTML documentation."""
         try:
             with open(output_path, "w", encoding="utf-8") as f:
-                f.write("<!DOCTYPE html>\n")
-                f.write("<html lang='en'>\n")
-                f.write("<head>\n")
-                f.write("    <meta charset='UTF-8'>\n")
-                f.write(
-                    "    <meta name='viewport' content='width=device-width, "
-                    "initial-scale=1.0'>\n"
-                )
-                f.write("    <title>Code Citations</title>\n")
-                f.write("    <style>\n")
-                f.write(
-                    "        body { font-family: Arial, sans-serif; "
-                    "margin: 40px; }\n"
-                )
-                f.write(
-                    "        h1 { color: #333; "
-                    "border-bottom: 2px solid #333; }\n"
-                )
-                f.write(
-                    "        h2 { color: #666; "
-                    "border-bottom: 1px solid #ccc; }\n"
-                )
-                f.write("        h3 { color: #888; }\n")
-                f.write(
-                    "        ul { list-style-type: none; padding-left: 0; }\n"
-                )
-                f.write("        li { margin: 5px 0; }\n")
-                f.write("        strong { color: #333; }\n")
-                f.write("        .citation { margin-bottom: 20px; }\n")
-                f.write("    </style>\n")
-                f.write("</head>\n")
-                f.write("<body>\n")
-                f.write("    <h1>Code Citations</h1>\n\n")
-
+                html_content = f"""<!DOCTYPE html>
+<html lang='en'>
+<head>
+    <meta charset='UTF-8'>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+    <title>Code Citations</title>
+    <style>
+        body {{ font-family: Arial, sans-serif; margin: 40px; }}
+        h1 {{ color: #333; border-bottom: 2px solid #333; }}
+        h2 {{ color: #666; border-bottom: 1px solid #ccc; }}
+        h3 {{ color: #888; }}
+        ul {{ list-style-type: none; padding-left: 0; }}
+        li {{ margin: 5px 0; }}
+        strong {{ color: #333; }}
+        .citation {{ margin-bottom: 20px; }}
+    </style>
+</head>
+<body>
+    <h1>Code Citations</h1>
+"""
                 for file_path, file_citations in citations.items():
-                    f.write(f"    <h2>{file_path}</h2>\n\n")
-
+                    html_content += f"""
+    <h2>{file_path}</h2>
+"""
                     for i, citation in enumerate(file_citations, 1):
-                        f.write("    <div class='citation'>\n")
-                        f.write(f"        <h3>Citation {i}</h3>\n")
-                        f.write("        <ul>\n")
-
+                        html_content += f"""
+    <div class='citation'>
+        <h3>Citation {i}</h3>
+        <ul>
+"""
                         if "source" in citation:
-                            f.write(
-                                f"            <li><strong>Source:</strong> "
-                                f"{citation['source']}</li>\n"
-                            )
+                            html_content += f"""
+            <li><strong>Source:</strong> {citation['source']}</li>
+"""
                         if "author" in citation:
-                            f.write(
-                                f"            <li><strong>Author:</strong> "
-                                f"{citation['author']}</li>\n"
-                            )
+                            html_content += f"""
+            <li><strong>Author:</strong> {citation['author']}</li>
+"""
                         if "date" in citation:
-                            f.write(
-                                f"            <li><strong>Date:</strong> "
-                                f"{citation['date']}</li>\n"
-                            )
+                            html_content += f"""
+            <li><strong>Date:</strong> {citation['date']}</li>
+"""
                         if "description" in citation:
-                            f.write(
-                                f"            <li><strong>Description:</strong> "
-                                f"{citation['description']}</li>\n"
-                            )
-
-                        f.write("        </ul>\n")
-                        f.write("    </div>\n\n")
-
-                f.write("</body>\n")
-                f.write("</html>\n")
-
+                            html_content += f"""
+            <li><strong>Description:</strong> {citation['description']}</li>
+"""
+                        html_content += """
+        </ul>
+    </div>
+"""
+                html_content += """
+</body>
+</html>
+"""
+                f.write(html_content)
             return True
         except Exception as e:
             print(f"Error generating HTML documentation: {e}")
