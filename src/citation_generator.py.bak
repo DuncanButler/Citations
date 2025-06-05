@@ -61,18 +61,15 @@ class CitationGenerator:
                         f.write("\n")
 
             return True
-        except Exception as e:
-            print(f"Error generating Markdown documentation: {e}")
+        except Exception as e:            print(f"Error generating Markdown documentation: {e}")
             return False
-
+            
     def _generate_html(
         self, citations: Dict[str, List[Dict[str, str]]], output_path: str
     ) -> bool:
         """Generate HTML documentation."""
         # HTML generation not yet implemented
-        raise NotImplementedError("HTML generation is not yet implemented")
-
-    def _generate_json(
+        raise NotImplementedError("HTML generation is not yet implemented")    def _generate_json(
         self, citations: Dict[str, List[Dict[str, str]]], output_path: str
     ) -> bool:
         """Generate JSON documentation."""

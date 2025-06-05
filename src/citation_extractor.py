@@ -95,10 +95,8 @@ class CitationExtractor:
                     elif i == 2:  # Date pattern
                         current_citation["date"] = match.group(1).strip()
                     elif i == 3:  # Description pattern
-                        current_citation["description"] = match.group(1).strip()
-
-        # Add the last citation if it exists
-        if current_citation:
+                        current_citation["description"] = match.group(1).strip()        # Add the last citation if it exists and has a source
+        if current_citation and "source" in current_citation:
             citations.append(current_citation)
 
         return citations
