@@ -2,8 +2,7 @@
 Citation generator module for Copilot-generated code.
 """
 
-import os
-from typing import Dict, List, Optional
+from typing import Dict, List
 
 
 class CitationGenerator:

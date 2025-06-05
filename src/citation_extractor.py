@@ -7,7 +7,8 @@ import re
 from typing import Dict, List, Optional
 
 
-class CitationExtractor:    """
+class CitationExtractor:    
+    """
     Extracts citations from code files based on standardized comment formats.
     
     Supports multiple comment styles:
