@@ -58,8 +58,7 @@ class TestCitationExtractor(unittest.TestCase):
         # [CITATION] Author: Second Author
         # [CITATION] Date: 2025-01-02
         def second_function():
-            pass
-        """
+            pass"""
 
         citations = self.extractor.extract_from_string(code)
 
@@ -284,6 +283,165 @@ class TestCitationGenerator(unittest.TestCase):
         # Clean up
         if os.path.exists(test_output):
             os.remove(test_output)
+
+    def test_html_generation(self):
+        """Test generating HTML documentation."""
+        test_citations: Dict[str, List[Dict[str, str]]] = {
+            "test.py": [
+                {
+                    "source": "https://example.com/test",
+                    "author": "Test Author",
+                    "date": "2025-01-01",
+                    "description": "Test description",
+                }
+            ]
+        }
+
+        generator = CitationGenerator("html")
+        test_output = "test_output.html"
+        # Generate the documentation
+        result = generator.generate(test_citations, test_output)
+        self.assertTrue(result)
+
+        # Check that the file was created
+        self.assertTrue(os.path.exists(test_output))
+
+        # Check content
+        with open(test_output, "r", encoding="utf-8") as f:
+            content = f.read()
+            self.assertIn("<!DOCTYPE html>", content)
+            self.assertIn("<title>Code Citations</title>", content)
+            self.assertIn("https://example.com/test", content)
+            self.assertIn("Test Author", content)
+            self.assertIn("2025-01-01", content)
+            self.assertIn("Test description", content)
+
+        # Clean up
+        if os.path.exists(test_output):
+            os.remove(test_output)
+
+    def test_json_generation(self):
+        """Test generating JSON documentation."""
+        test_citations: Dict[str, List[Dict[str, str]]] = {
+            "test.py": [
+                {
+                    "source": "https://example.com/test",
+                    "author": "Test Author",
+                    "date": "2025-01-01",
+                    "description": "Test description",
+                }
+            ]
+        }
+
+        generator = CitationGenerator("json")
+        test_output = "test_output.json"
+        # Generate the documentation
+        result = generator.generate(test_citations, test_output)
+        self.assertTrue(result)
+
+        # Check that the file was created
+        self.assertTrue(os.path.exists(test_output))
+
+        # Check JSON structure
+        import json
+
+        with open(test_output, "r", encoding="utf-8") as f:
+            data = json.load(f)
+            self.assertEqual(data["title"], "Code Citations")
+            self.assertIn("files", data)
+            self.assertIn("test.py", data["files"])
+            self.assertEqual(data["files"]["test.py"]["citation_count"], 1)
+            self.assertEqual(len(data["files"]["test.py"]["citations"]), 1)
+
+            citation = data["files"]["test.py"]["citations"][0]
+            self.assertEqual(citation["source"], "https://example.com/test")
+            self.assertEqual(citation["author"], "Test Author")
+            self.assertEqual(citation["date"], "2025-01-01")
+            self.assertEqual(citation["description"], "Test description")
+
+        # Clean up
+        if os.path.exists(test_output):
+            os.remove(test_output)
+
+    def test_multiple_files_html_generation(self):
+        """Test generating HTML documentation with multiple files."""
+        test_citations: Dict[str, List[Dict[str, str]]] = {
+            "test1.py": [
+                {
+                    "source": "https://example.com/test1",
+                    "author": "Author 1",
+                }
+            ],
+            "test2.js": [
+                {
+                    "source": "https://example.com/test2",
+                    "author": "Author 2",
+                    "date": "2025-01-02",
+                }
+            ],
+        }
+
+        generator = CitationGenerator("html")
+        test_output = "test_multiple.html"
+        result = generator.generate(test_citations, test_output)
+        self.assertTrue(result)
+
+        with open(test_output, "r", encoding="utf-8") as f:
+            content = f.read()
+            self.assertIn("test1.py", content)
+            self.assertIn("test2.js", content)
+            self.assertIn("Author 1", content)
+            self.assertIn("Author 2", content)
+
+        # Clean up
+        if os.path.exists(test_output):
+            os.remove(test_output)
+
+    def test_multiple_files_json_generation(self):
+        """Test generating JSON documentation with multiple files."""
+        test_citations: Dict[str, List[Dict[str, str]]] = {
+            "test1.py": [
+                {
+                    "source": "https://example.com/test1",
+                    "author": "Author 1",
+                }
+            ],
+            "test2.js": [
+                {
+                    "source": "https://example.com/test2",
+                    "author": "Author 2",
+                    "date": "2025-01-02",
+                }
+            ],
+        }
+
+        generator = CitationGenerator("json")
+        test_output = "test_multiple.json"
+        result = generator.generate(test_citations, test_output)
+        self.assertTrue(result)
+
+        import json
+
+        with open(test_output, "r", encoding="utf-8") as f:
+            data = json.load(f)
+            self.assertEqual(len(data["files"]), 2)
+            self.assertIn("test1.py", data["files"])
+            self.assertIn("test2.js", data["files"])
+
+        # Clean up
+        if os.path.exists(test_output):
+            os.remove(test_output)
+
+    def test_empty_citations(self):
+        """Test generating documentation with empty citations."""
+        # Test that empty citations return False
+        result = self.generator.generate({}, "empty_test.md")
+        self.assertFalse(result)
+
+    def test_unsupported_format(self):
+        """Test creating generator with unsupported format."""
+        with self.assertRaises(ValueError):
+            CitationGenerator("unsupported")
 
 
 if __name__ == "__main__":
