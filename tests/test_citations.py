@@ -58,7 +58,8 @@ class TestCitationExtractor(unittest.TestCase):
         # [CITATION] Author: Second Author
         # [CITATION] Date: 2025-01-02
         def second_function():
-            pass"""
+            pass
+        """
 
         citations = self.extractor.extract_from_string(code)
 
