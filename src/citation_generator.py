@@ -69,12 +69,104 @@ class CitationGenerator:
         self, citations: Dict[str, List[Dict[str, str]]], output_path: str
     ) -> bool:
         """Generate HTML documentation."""
-        # HTML generation not yet implemented
-        raise NotImplementedError("HTML generation is not yet implemented")
+        try:
+            with open(output_path, "w", encoding="utf-8") as f:
+                html_content = f"""<!DOCTYPE html>
+<html lang='en'>
+<head>
+    <meta charset='UTF-8'>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+    <title>Code Citations</title>
+    <style>
+        body {{ font-family: Arial, sans-serif; margin: 40px; }}
+        h1 {{ color: #333; border-bottom: 2px solid #333; }}
+        h2 {{ color: #666; border-bottom: 1px solid #ccc; }}
+        h3 {{ color: #888; }}
+        ul {{ list-style-type: none; padding-left: 0; }}
+        li {{ margin: 5px 0; }}
+        strong {{ color: #333; }}
+        .citation {{ margin-bottom: 20px; }}
+    </style>
+</head>
+<body>
+    <h1>Code Citations</h1>
+"""
+                for file_path, file_citations in citations.items():
+                    html_content += f"""
+    <h2>{file_path}</h2>
+"""
+                    for i, citation in enumerate(file_citations, 1):
+                        html_content += f"""
+    <div class='citation'>
+        <h3>Citation {i}</h3>
+        <ul>
+"""
+                        if "source" in citation:
+                            html_content += f"""
+            <li><strong>Source:</strong> {citation['source']}</li>
+"""
+                        if "author" in citation:
+                            html_content += f"""
+            <li><strong>Author:</strong> {citation['author']}</li>
+"""
+                        if "date" in citation:
+                            html_content += f"""
+            <li><strong>Date:</strong> {citation['date']}</li>
+"""
+                        if "description" in citation:
+                            html_content += f"""
+            <li><strong>Description:</strong> {citation['description']}</li>
+"""
+                        html_content += """
+        </ul>
+    </div>
+"""
+                html_content += """
+</body>
+</html>
+"""
+                f.write(html_content)
+            return True
+        except Exception as e:
+            print(f"Error generating HTML documentation: {e}")
+            return False
 
     def _generate_json(
         self, citations: Dict[str, List[Dict[str, str]]], output_path: str
     ) -> bool:
         """Generate JSON documentation."""
-        # JSON generation not yet implemented
-        raise NotImplementedError("JSON generation is not yet implemented")
+        try:
+            import json
+
+            # Structure the data for JSON output
+            json_data = {
+                "title": "Code Citations",
+                "generated_at": None,  # Could add timestamp if needed
+                "files": {},
+            }
+
+            for file_path, file_citations in citations.items():
+                json_data["files"][file_path] = {
+                    "citation_count": len(file_citations),
+                    "citations": [],
+                }
+
+                for i, citation in enumerate(file_citations, 1):
+                    citation_entry = {
+                        "id": i,
+                        "source": citation.get("source", ""),
+                        "author": citation.get("author", ""),
+                        "date": citation.get("date", ""),
+                        "description": citation.get("description", ""),
+                    }
+                    json_data["files"][file_path]["citations"].append(
+                        citation_entry
+                    )
+
+            with open(output_path, "w", encoding="utf-8") as f:
+                json.dump(json_data, f, indent=2, ensure_ascii=False)
+
+            return True
+        except Exception as e:
+            print(f"Error generating JSON documentation: {e}")
+            return False
