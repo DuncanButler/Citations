@@ -62,7 +62,8 @@ class TestCitationExtractor(unittest.TestCase):
         
         citations = self.extractor.extract_from_string(code)
         
-        self.assertEqual(len(citations), 2)        self.assertEqual(citations[0]['source'], 'https://example.com/first')
+        self.assertEqual(len(citations), 2)        
+        self.assertEqual(citations[0]['source'], 'https://example.com/first')
         self.assertEqual(citations[0]['author'], 'First Author')
         self.assertEqual(citations[0]['description'], 'First example')
         self.assertEqual(citations[1]['source'], 'https://example.com/second')
