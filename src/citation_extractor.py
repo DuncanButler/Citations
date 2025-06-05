@@ -11,22 +11,47 @@ class CitationExtractor:
     """
     Extracts citations from code files based on standardized comment formats.
     
-    # [CITATION] Source: GitHub Copilot Documentation
+    Supports multiple comment styles:
+    - # for Python, Shell, Ruby, Perl, etc.
+    - // for JavaScript, TypeScript, C++, Java, C#, Go, etc.
+    - /* */ for C, C++, Java, JavaScript, CSS, etc.
+    - <!-- --> for HTML, XML, etc.
+    - -- for SQL, Haskell, etc.
+    
+    Citation format:
+    # [CITATION] Source: https://example.com/resource
+    # [CITATION] Author: Example Author  
     # [CITATION] Date: 2025-06-05
+    # [CITATION] Description: Brief explanation of what was referenced
     """
     
     def __init__(self, patterns: Optional[List[str]] = None):
-        """Initialize with citation patterns to search for."""
+        """
+        Initialize with citation patterns to search for.
+        
+        Args:
+            patterns: Optional list of regex patterns to override defaults.
+                     Default patterns support #, //, /*, *, <!--, and -- comments.
+        """
         self.patterns = patterns or [
-            r'(?:\/\/|\#)\s*\[CITATION\]\s*Source:\s*(.+)',
-            r'(?:\/\/|\#)\s*\[CITATION\]\s*Author:\s*(.+)',
-            r'(?:\/\/|\#)\s*\[CITATION\]\s*Date:\s*(.+)',
-            r'(?:\/\/|\#)\s*\[CITATION\]\s*Description:\s*(.+)'
+            r'(?:\/\/|\#|\/\*|\*|<!--|--)\s*\[CITATION\]\s*Source:\s*(.+?)(?:\s*\*\/|-->|$)',  # noqa: E501
+            r'(?:\/\/|\#|\/\*|\*|<!--|--)\s*\[CITATION\]\s*Author:\s*(.+?)(?:\s*\*\/|-->|$)',  # noqa: E501
+            r'(?:\/\/|\#|\/\*|\*|<!--|--)\s*\[CITATION\]\s*Date:\s*(.+?)(?:\s*\*\/|-->|$)',  # noqa: E501
+            r'(?:\/\/|\#|\/\*|\*|<!--|--)\s*\[CITATION\]\s*Description:\s*(.+?)(?:\s*\*\/|-->|$)'  # noqa: E501
         ]
         self.compiled_patterns = [re.compile(pattern) for pattern in self.patterns]
         
     def extract_from_file(self, file_path: str) -> List[Dict[str, str]]:
-        """Extract citations from a single file."""
+        """
+        Extract citations from a single file.
+        
+        Args:
+            file_path: Path to the file to extract citations from.
+            
+        Returns:
+            List of citation dictionaries with keys: source, author, date, description.
+            Returns empty list if file doesn't exist or has no citations.
+        """
         if not os.path.isfile(file_path):
             return []
         
@@ -36,7 +61,19 @@ class CitationExtractor:
         return self.extract_from_string(content)
     
     def extract_from_string(self, content: str) -> List[Dict[str, str]]:
-        """Extract citations from a string."""
+        """
+        Extract citations from a string.
+        
+        Args:
+            content: String content to extract citations from.
+            
+        Returns:
+            List of citation dictionaries. Each citation may contain:
+            - 'source': URL or reference source
+            - 'author': Author name  
+            - 'date': Date string
+            - 'description': Description of what was referenced
+        """
         citations: List[Dict[str, str]] = []
         lines = content.splitlines()
         current_citation: Dict[str, str] = {}
@@ -65,8 +102,19 @@ class CitationExtractor:
             
         return citations
     
-    def extract_from_directory(self, directory_path: str, file_extensions: Optional[List[str]] = None) -> Dict[str, List[Dict[str, str]]]:
-        """Extract citations from all files in a directory."""
+    def extract_from_directory(self, directory_path: str, file_extensions: Optional[List[str]] = None) -> Dict[str, List[Dict[str, str]]]:  # noqa: E501
+        """
+        Extract citations from all files in a directory.
+        
+        Args:
+            directory_path: Path to directory to scan.
+            file_extensions: List of file extensions to include. 
+                           Defaults to ['.py', '.js', '.ts', '.java', '.cs', '.cpp', '.c'].
+                           
+        Returns:
+            Dictionary mapping relative file paths to lists of citations found in each file.
+            Only includes files that contain citations.
+        """
         result: Dict[str, List[Dict[str, str]]] = {}
         extensions = file_extensions or ['.py', '.js', '.ts', '.java', '.cs', '.cpp', '.c']
         
