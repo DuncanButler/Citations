@@ -7,14 +7,14 @@ import re
 from typing import Dict, List, Optional
 
 
-class CitationExtractor:
-    """
+class CitationExtractor:    """
     Extracts citations from code files based on standardized comment formats.
     
     Supports multiple comment styles:
     - # for Python, Shell, Ruby, Perl, etc.
     - // for JavaScript, TypeScript, C++, Java, C#, Go, etc.
     - /* */ for C, C++, Java, JavaScript, CSS, etc.
+    - * for continuation lines in multiline C-style comments
     - <!-- --> for HTML, XML, etc.
     - -- for SQL, Haskell, etc.
     
@@ -105,18 +105,28 @@ class CitationExtractor:
     def extract_from_directory(self, directory_path: str, file_extensions: Optional[List[str]] = None) -> Dict[str, List[Dict[str, str]]]:  # noqa: E501
         """
         Extract citations from all files in a directory.
-        
-        Args:
+          Args:
             directory_path: Path to directory to scan.
             file_extensions: List of file extensions to include. 
-                           Defaults to ['.py', '.js', '.ts', '.java', '.cs', '.cpp', '.c'].
+                           Defaults to common programming languages (.py, .js, .ts, etc.),
+                           web files (.html, .xml, .css), data files (.sql, .json, .yaml),
+                           and documentation files (.md, .rst).
                            
         Returns:
             Dictionary mapping relative file paths to lists of citations found in each file.
             Only includes files that contain citations.
         """
         result: Dict[str, List[Dict[str, str]]] = {}
-        extensions = file_extensions or ['.py', '.js', '.ts', '.java', '.cs', '.cpp', '.c']
+        extensions = file_extensions or [
+            # Programming languages
+            '.py', '.js', '.ts', '.java', '.cs', '.cpp', '.c', '.go', '.rb', '.php',
+            # Web files
+            '.html', '.xml', '.css', '.svg',
+            # Data/config files
+            '.sql', '.json', '.yaml', '.yml',
+            # Documentation
+            '.md', '.rst'
+        ]
         
         if not os.path.isdir(directory_path):
             return result
