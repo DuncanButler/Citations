@@ -7,10 +7,10 @@ import re
 from typing import Dict, List, Optional
 
 
-class CitationExtractor:    
+class CitationExtractor:
     """
     Extracts citations from code files based on standardized comment formats.
-    
+
     Supports multiple comment styles:
     - # for Python, Shell, Ruby, Perl, etc.
     - // for JavaScript, TypeScript, C++, Java, C#, Go, etc.
@@ -18,101 +18,103 @@ class CitationExtractor:
     - * for continuation lines in multiline C-style comments
     - <!-- --> for HTML, XML, etc.
     - -- for SQL, Haskell, etc.
-    
+
     Citation format:
     # [CITATION] Source: https://example.com/resource
-    # [CITATION] Author: Example Author  
+    # [CITATION] Author: Example Author
     # [CITATION] Date: 2025-06-05
     # [CITATION] Description: Brief explanation of what was referenced
     """
-    
+
     def __init__(self, patterns: Optional[List[str]] = None):
         """
         Initialize with citation patterns to search for.
-        
+
         Args:
             patterns: Optional list of regex patterns to override defaults.
                      Default patterns support #, //, /*, *, <!--, and -- comments.
         """
         self.patterns = patterns or [
-            r'(?:\/\/|\#|\/\*|\*|<!--|--)\s*\[CITATION\]\s*Source:\s*(.+?)(?:\s*\*\/|-->|$)',  # noqa: E501
-            r'(?:\/\/|\#|\/\*|\*|<!--|--)\s*\[CITATION\]\s*Author:\s*(.+?)(?:\s*\*\/|-->|$)',  # noqa: E501
-            r'(?:\/\/|\#|\/\*|\*|<!--|--)\s*\[CITATION\]\s*Date:\s*(.+?)(?:\s*\*\/|-->|$)',  # noqa: E501
-            r'(?:\/\/|\#|\/\*|\*|<!--|--)\s*\[CITATION\]\s*Description:\s*(.+?)(?:\s*\*\/|-->|$)'  # noqa: E501
+            r"(?:\/\/|\#|\/\*|\*|<!--|--)\s*\[CITATION\]\s*Source:\s*(.+?)(?:\s*\*\/|-->|$)",  # noqa: E501
+            r"(?:\/\/|\#|\/\*|\*|<!--|--)\s*\[CITATION\]\s*Author:\s*(.+?)(?:\s*\*\/|-->|$)",  # noqa: E501
+            r"(?:\/\/|\#|\/\*|\*|<!--|--)\s*\[CITATION\]\s*Date:\s*(.+?)(?:\s*\*\/|-->|$)",  # noqa: E501
+            r"(?:\/\/|\#|\/\*|\*|<!--|--)\s*\[CITATION\]\s*Description:\s*(.+?)(?:\s*\*\/|-->|$)",  # noqa: E501
         ]
         self.compiled_patterns = [re.compile(pattern) for pattern in self.patterns]
-        
+
     def extract_from_file(self, file_path: str) -> List[Dict[str, str]]:
         """
         Extract citations from a single file.
-        
+
         Args:
             file_path: Path to the file to extract citations from.
-            
+
         Returns:
             List of citation dictionaries with keys: source, author, date, description.
             Returns empty list if file doesn't exist or has no citations.
         """
         if not os.path.isfile(file_path):
             return []
-        
-        with open(file_path, 'r', encoding='utf-8') as f:
+
+        with open(file_path, "r", encoding="utf-8") as f:
             content = f.read()
-            
+
         return self.extract_from_string(content)
-    
+
     def extract_from_string(self, content: str) -> List[Dict[str, str]]:
         """
         Extract citations from a string.
-        
+
         Args:
             content: String content to extract citations from.
-            
+
         Returns:
             List of citation dictionaries. Each citation may contain:
             - 'source': URL or reference source
-            - 'author': Author name  
+            - 'author': Author name
             - 'date': Date string
             - 'description': Description of what was referenced
         """
         citations: List[Dict[str, str]] = []
         lines = content.splitlines()
         current_citation: Dict[str, str] = {}
-        
+
         for line in lines:
             for i, pattern in enumerate(self.compiled_patterns):
                 match = pattern.search(line)
                 if match:
                     # Extract the type of citation from pattern
                     if i == 0:  # Source pattern
-                        if current_citation and 'source' in current_citation:
+                        if current_citation and "source" in current_citation:
                             # Save previous citation if we find a new source
                             citations.append(current_citation)
                             current_citation = {}
-                        current_citation['source'] = match.group(1).strip()
+                        current_citation["source"] = match.group(1).strip()
                     elif i == 1:  # Author pattern
-                        current_citation['author'] = match.group(1).strip()
+                        current_citation["author"] = match.group(1).strip()
                     elif i == 2:  # Date pattern
-                        current_citation['date'] = match.group(1).strip()
+                        current_citation["date"] = match.group(1).strip()
                     elif i == 3:  # Description pattern
-                        current_citation['description'] = match.group(1).strip()
-        
+                        current_citation["description"] = match.group(1).strip()
+
         # Add the last citation if it exists
         if current_citation:
             citations.append(current_citation)
-            
+
         return citations
-    
-    def extract_from_directory(self, directory_path: str, file_extensions: Optional[List[str]] = None) -> Dict[str, List[Dict[str, str]]]:  # noqa: E501
+
+    def extract_from_directory(
+        self, directory_path: str, file_extensions: Optional[List[str]] = None
+    ) -> Dict[str, List[Dict[str, str]]]:  # noqa: E501
         """
         Extract citations from all files in a directory.
           Args:
             directory_path: Path to directory to scan.
-            file_extensions: List of file extensions to include. 
+            file_extensions: List of file extensions to include.
                            Defaults to common programming languages (.py, .js, .ts, etc.),
                            web files (.html, .xml, .css), data files (.sql, .json, .yaml),
                            and documentation files (.md, .rst).
-                           
+
         Returns:
             Dictionary mapping relative file paths to lists of citations found in each file.
             Only includes files that contain citations.
@@ -120,18 +122,34 @@ class CitationExtractor:
         result: Dict[str, List[Dict[str, str]]] = {}
         extensions = file_extensions or [
             # Programming languages
-            '.py', '.js', '.ts', '.java', '.cs', '.cpp', '.c', '.go', '.rb', '.php',
+            ".py",
+            ".js",
+            ".ts",
+            ".java",
+            ".cs",
+            ".cpp",
+            ".c",
+            ".go",
+            ".rb",
+            ".php",
             # Web files
-            '.html', '.xml', '.css', '.svg',
+            ".html",
+            ".xml",
+            ".css",
+            ".svg",
             # Data/config files
-            '.sql', '.json', '.yaml', '.yml',
+            ".sql",
+            ".json",
+            ".yaml",
+            ".yml",
             # Documentation
-            '.md', '.rst'
+            ".md",
+            ".rst",
         ]
-        
+
         if not os.path.isdir(directory_path):
             return result
-        
+
         for root, _, files in os.walk(directory_path):
             for file in files:
                 if any(file.endswith(ext) for ext in extensions):
@@ -140,5 +158,5 @@ class CitationExtractor:
                     if citations:
                         relative_path = os.path.relpath(file_path, directory_path)
                         result[relative_path] = citations
-        
+
         return result
