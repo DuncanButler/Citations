@@ -1,0 +1,27 @@
+# Set default behavior to automatically normalize line endings
+* text=auto
+
+# Python files
+*.py text diff=python
+
+# TypeScript files
+*.ts text diff=typescript
+
+# JavaScript files
+*.js text
+
+# JSON files
+*.json text
+
+# Markdown files
+*.md text diff=markdown
+
+# Batch scripts
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+# Shell scripts
+*.sh text eol=lf
+
+# VS Code files
+*.code-workspace text
