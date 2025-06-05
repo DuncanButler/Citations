@@ -6,7 +6,6 @@ Main entry point for Copilot Citations CLI tool.
 import argparse
 import os
 import sys
-from typing import Optional
 
 # Adjust import path when running the script directly
 if __name__ == "__main__":
