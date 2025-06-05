@@ -61,9 +61,8 @@ class TestCitationGenerator(unittest.TestCase):
         }
         
         test_output = 'test_output.md'
-        
-        # Generate the documentation
-        result = self.generator._generate_markdown(test_citations, test_output)
+          # Generate the documentation
+        result = self.generator.generate(test_citations, test_output)
         self.assertTrue(result)
         
         # Check that the file was created
