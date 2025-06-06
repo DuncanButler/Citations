@@ -95,7 +95,9 @@ class CitationExtractor:
                     elif i == 2:  # Date pattern
                         current_citation["date"] = match.group(1).strip()
                     elif i == 3:  # Description pattern
-                        current_citation["description"] = match.group(1).strip()        # Add the last citation if it exists and has a source
+                        current_citation["description"] = match.group(1).strip()
+
+        # Add the last citation if it exists and has a source
         if current_citation and "source" in current_citation:
             citations.append(current_citation)
 
@@ -106,16 +108,18 @@ class CitationExtractor:
     ) -> Dict[str, List[Dict[str, str]]]:  # noqa: E501
         """
         Extract citations from all files in a directory.
-          Args:
+
+        Args:
             directory_path: Path to directory to scan.
             file_extensions: List of file extensions to include.
-                           Defaults to common programming languages (.py, .js, .ts, etc.),
-                           web files (.html, .xml, .css), data files (.sql, .json, .yaml),
-                           and documentation files (.md, .rst).
+                           Defaults to common programming languages
+                           (.py, .js, .ts, etc.), web files (.html, .xml, .css),
+                           data files (.sql, .json, .yaml), and documentation
+                           files (.md, .rst).
 
         Returns:
-            Dictionary mapping relative file paths to lists of citations found in each file.
-            Only includes files that contain citations.
+            Dictionary mapping relative file paths to lists of citations found
+            in each file. Only includes files that contain citations.
         """
         result: Dict[str, List[Dict[str, str]]] = {}
         extensions = file_extensions or [

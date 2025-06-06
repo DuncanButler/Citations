@@ -3,17 +3,17 @@ Tests for the Copilot citations extractor.
 """
 
 import os
+import sys
 import tempfile
 import unittest
 from typing import Dict, List
 
 # Need to fix the import path to find our source modules
-import sys
-
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-from src.citation_extractor import CitationExtractor
-from src.citation_generator import CitationGenerator
+# Import local modules after path modification  # noqa: E402
+from src.citation_extractor import CitationExtractor  # noqa: E402
+from src.citation_generator import CitationGenerator  # noqa: E402
 
 
 class TestCitationExtractor(unittest.TestCase):
@@ -52,7 +52,7 @@ class TestCitationExtractor(unittest.TestCase):
         # [CITATION] Description: First example
         def first_function():
             pass
-        
+
         # Second citation block
         # [CITATION] Source: https://example.com/second
         # [CITATION] Author: Second Author

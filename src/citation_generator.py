@@ -16,7 +16,8 @@ class CitationGenerator:
         self.supported_formats = ["markdown", "html", "json"]
         if output_format not in self.supported_formats:
             raise ValueError(
-                f"Unsupported output format: {output_format}. Supported formats: {self.supported_formats}"
+                f"Unsupported output format: {output_format}. "
+                f"Supported formats: {self.supported_formats}"
             )
 
     def generate(
@@ -71,7 +72,7 @@ class CitationGenerator:
         """Generate HTML documentation."""
         try:
             with open(output_path, "w", encoding="utf-8") as f:
-                html_content = f"""<!DOCTYPE html>
+                html_content = """<!DOCTYPE html>
 <html lang='en'>
 <head>
     <meta charset='UTF-8'>

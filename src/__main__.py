@@ -38,7 +38,10 @@ def main() -> int:
         dest="output",
         type=str,
         default="Documentation/citations.md",
-        help="Output file path for the generated documentation (default: Documentation/citations.md)",
+        help=(
+            "Output file path for the generated documentation "
+            "(default: Documentation/citations.md)"
+        ),
     )
 
     parser.add_argument(
