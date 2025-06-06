@@ -41,7 +41,15 @@ A tool for managing GitHub Copilot-generated code citations and references. This
 
 ## Usage
 
-Coming soon...
+### Command Line Interface
+
+The Copilot Citations tool can be used from the command line:
+
+```bash
+python -m src.__main__ -d /path/to/code -o /path/to/output/citations.md
+```
+
+For detailed CLI usage instructions, see the [CLI Usage Guide](./Documentation/cli_usage.md).
 
 ## Development
 

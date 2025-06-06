@@ -54,13 +54,13 @@ class CitationExtractor:
             Returns empty list if file doesn't exist or has no citations.
         """
         if not os.path.isfile(file_path):
-            return []
-
+            return []        
+        
         with open(file_path, "r", encoding="utf-8") as f:
             content = f.read()
 
         return self.extract_from_string(content)
-
+        
     def extract_from_string(self, content: str) -> List[Dict[str, str]]:
         """
         Extract citations from a string.
@@ -95,14 +95,17 @@ class CitationExtractor:
                     elif i == 2:  # Date pattern
                         current_citation["date"] = match.group(1).strip()
                     elif i == 3:  # Description pattern
-                        current_citation["description"] = match.group(1).strip()        # Add the last citation if it exists and has a source
+                        current_citation["description"] = match.group(1).strip()
+        
+        # Add the last citation if it exists and has a source
         if current_citation and "source" in current_citation:
             citations.append(current_citation)
 
         return citations
 
     def extract_from_directory(
-        self, directory_path: str, file_extensions: Optional[List[str]] = None
+        self, directory_path: str, file_extensions: Optional[List[str]] = None, 
+        recursive: bool = True, ignore_patterns: Optional[List[str]] = None
     ) -> Dict[str, List[Dict[str, str]]]:  # noqa: E501
         """
         Extract citations from all files in a directory.
@@ -112,6 +115,8 @@ class CitationExtractor:
                            Defaults to common programming languages (.py, .js, .ts, etc.),
                            web files (.html, .xml, .css), data files (.sql, .json, .yaml),
                            and documentation files (.md, .rst).
+            recursive: Whether to scan directories recursively. Default is True.
+            ignore_patterns: List of directory or file patterns to ignore (e.g., node_modules, .git)
 
         Returns:
             Dictionary mapping relative file paths to lists of citations found in each file.
@@ -145,16 +150,42 @@ class CitationExtractor:
             ".rst",
         ]
 
+        ignore_patterns = ignore_patterns or []
+
         if not os.path.isdir(directory_path):
             return result
+          # Helper function to check if path should be ignored
+        def should_ignore(path: str) -> bool:
+            for pattern in ignore_patterns:
+                if pattern in path:
+                    return True
+            return False
 
-        for root, _, files in os.walk(directory_path):
-            for file in files:
-                if any(file.endswith(ext) for ext in extensions):
+        if recursive:
+            # Walk recursively through the directory
+            for root, dirs, files in os.walk(directory_path):
+                # Filter out directories that match ignore patterns
+                dirs[:] = [d for d in dirs if not should_ignore(os.path.join(root, d))]
+                
+                for file in files:
                     file_path = os.path.join(root, file)
-                    citations = self.extract_from_file(file_path)
-                    if citations:
-                        relative_path = os.path.relpath(file_path, directory_path)
-                        result[relative_path] = citations
+                    if should_ignore(file_path):
+                        continue
+                        
+                    if any(file.endswith(ext) for ext in extensions):
+                        citations = self.extract_from_file(file_path)
+                        if citations:
+                            relative_path = os.path.relpath(file_path, directory_path)
+                            result[relative_path] = citations
+        else:
+            # Non-recursive mode, only check files in the top directory
+            for file in os.listdir(directory_path):
+                file_path = os.path.join(directory_path, file)
+                if os.path.isfile(file_path) and not should_ignore(file_path):
+                    if any(file.endswith(ext) for ext in extensions):
+                        citations = self.extract_from_file(file_path)
+                        if citations:
+                            relative_path = os.path.relpath(file_path, directory_path)
+                            result[relative_path] = citations
 
         return result
