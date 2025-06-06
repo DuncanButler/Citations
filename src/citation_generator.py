@@ -2,7 +2,7 @@
 Citation generator module for Copilot-generated code.
 """
 
-from typing import Dict, List
+from typing import Any, Dict, List
 
 
 class CitationGenerator:
@@ -140,7 +140,7 @@ class CitationGenerator:
             import json
 
             # Structure the data for JSON output
-            json_data = {
+            json_data: Dict[str, Any] = {
                 "title": "Code Citations",
                 "generated_at": None,  # Could add timestamp if needed
                 "files": {},
@@ -153,7 +153,7 @@ class CitationGenerator:
                 }
 
                 for i, citation in enumerate(file_citations, 1):
-                    citation_entry = {
+                    citation_entry: Dict[str, Any] = {
                         "id": i,
                         "source": citation.get("source", ""),
                         "author": citation.get("author", ""),

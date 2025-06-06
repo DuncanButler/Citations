@@ -445,5 +445,45 @@ class TestCitationGenerator(unittest.TestCase):
             CitationGenerator("unsupported")
 
 
+class TestMainModule(unittest.TestCase):
+    """Test the main module CLI functionality."""
+
+    def setUp(self):
+        """Set up test fixtures."""
+        # Import the main function here to avoid circular imports
+        from src.__main__ import main
+        self.main = main
+
+    def test_main_function_exists(self):
+        """Test that main function exists and is callable."""
+        self.assertTrue(callable(self.main))
+
+    def test_main_with_invalid_directory(self):
+        """Test main function with invalid directory."""
+        import sys
+        from unittest.mock import patch
+
+        # Mock sys.argv to simulate command line arguments
+        with patch.object(sys, 'argv', ['test', '-d', '/nonexistent/directory']):
+            result = self.main()
+            self.assertEqual(result, 1)  # Should return error code
+
+    def test_main_with_valid_empty_directory(self):
+        """Test main function with valid but empty directory."""
+        import sys
+        from unittest.mock import patch
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+            # Create a temporary output file path
+            output_path = os.path.join(temp_dir, "test_output.md")
+
+            with patch.object(sys, 'argv', [
+                'test', '-d', temp_dir, '-o', output_path
+            ]):
+                result = self.main()
+                # Should return 0 (success) even with no citations found
+                self.assertEqual(result, 0)
+
+
 if __name__ == "__main__":
     unittest.main()
